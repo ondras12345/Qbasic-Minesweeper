@@ -101,6 +101,7 @@ ON KEY(20) GOSUB cursorR
 KEY(20) ON
 
 ON TIMER(1) GOSUB timerUpdate
+'Comment out this line for QB64 support:
 TIMER ON
 
 LOCATE CSRLINOFFSET, 2, 1 'cursor visible
