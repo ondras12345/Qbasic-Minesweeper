@@ -1,3 +1,4 @@
+DECLARE SUB myEND ()
 DECLARE SUB printMinesLeft ()
 DECLARE SUB printDEBUG (text AS STRING)
 DECLARE SUB printAll (showMines AS INTEGER)
@@ -59,17 +60,17 @@ NEXT r%
 printAll 0
 showMine 0, 0, 0
 
+ON KEY(10) GOSUB quitGame
+KEY(10) ON
+
+ON KEY(11) GOSUB cursorU
+KEY(11) ON
 ON KEY(12) GOSUB cursorL
 KEY(12) ON
 ON KEY(13) GOSUB cursorR
 KEY(13) ON
-ON KEY(11) GOSUB cursorU
-KEY(11) ON
 ON KEY(14) GOSUB cursorD
 KEY(14) ON
-
-ON KEY(10) GOSUB quitGame
-KEY(10) ON
 
 KEY 15, CHR$(32) + CHR$(50) 'M
 ON KEY(15) GOSUB mark
@@ -102,7 +103,7 @@ LOCATE CSRLINOFFSET, 2, 1 'cursor visible
 WHILE 1 'endless loop
 WEND
 
-END
+myEND
 
 cursorL:
 mineCursor ("L")
@@ -122,7 +123,7 @@ RETURN
 
 quitGame:
 LOCATE CSRLINOFFSET + size + 2, 1
-END
+myEND
 RETURN
 
 mark: 'marks unknown cell as a mine / cancels the mark
@@ -164,7 +165,7 @@ NEXT c
 LOCATE CSRLINOFFSET + size + 1, 1
 PRINT "You Win!"
 LOCATE CSRLINOFFSET + size + 2, 1
-END
+myEND
 
 END SUB
 
@@ -208,6 +209,14 @@ CASE "D":
         END IF
 
 END SELECT
+END SUB
+
+SUB myEND 'disable key event trapping and end
+
+FOR i = 10 TO 20
+        KEY(i) OFF
+NEXT i
+END
 END SUB
 
 FUNCTION POS2C (cursorPosition AS INTEGER) 'cursor position to cell position
