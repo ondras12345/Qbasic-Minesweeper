@@ -2,7 +2,7 @@ DECLARE SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
 DECLARE SUB checkWin ()
 DECLARE SUB rePrint (c AS INTEGER, r AS INTEGER)
 DECLARE SUB markMine (c AS INTEGER, r AS INTEGER)
-DECLARE FUNCTION POS2C! (position AS INTEGER)
+DECLARE FUNCTION POS2C! (position AS INTEGER) 'cursor position to cell position
 DECLARE SUB mineCursor (a AS STRING)
 DECLARE FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
 CONST size = 9 'playground size
@@ -193,9 +193,8 @@ CASE "D":
 END SELECT
 END SUB
 
-FUNCTION POS2C (position AS INTEGER)
-' todo fix / check
-POS2C = (POS(0) - 1) / charsPerMine
+FUNCTION POS2C (cursorPosition AS INTEGER) 'cursor position to cell position
+POS2C = (cursorPosition - 1) / charsPerMine
 END FUNCTION
 
 SUB rePrint (c AS INTEGER, r AS INTEGER) 'reprints a cell
