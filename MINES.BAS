@@ -1,3 +1,4 @@
+DECLARE SUB printMinesLeft ()
 DECLARE SUB printDEBUG (text AS STRING)
 DECLARE SUB printAll (showMines AS INTEGER)
 DECLARE SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
@@ -16,12 +17,17 @@ CONST mine = 300
 CONST marked = 100
 CONST hidden = 10
 
+'global variables
+DIM SHARED mines(size, size) AS INTEGER 'column, row
+DIM SHARED minesLeft AS INTEGER
+minesLeft = minesCountMax
+
 CLS
 PRINT "MINES"
 PRINT "Use cursor keys or WASD to move"
-PRINT "There are" + STR$(minesCountMax) + " mines."
+PRINT '3, 1 -  mines left
+printMinesLeft
 PRINT "F10 - quit       M - mark as a mine      Enter - show"
-DIM SHARED mines(size, size) AS INTEGER 'column,row
 
 'table initialization
 DIM minesCount AS INTEGER
@@ -165,12 +171,15 @@ END SUB
 SUB markMine (c AS INTEGER, r AS INTEGER) 'marks unknown cell as a mine / cancels the mark
 IF mines(c, r) >= marked AND NOT mines(c, r) = mine THEN
         mines(c, r) = mines(c, r) - marked
+        minesLeft = minesLeft + 1
 ELSE
         IF mines(c, r) >= hidden THEN 'to prevent marking a shown cell
                 mines(c, r) = mines(c, r) + marked
+                minesLeft = minesLeft - 1
         END IF
 END IF
 rePrint c, r  'reprint this cell
+printMinesLeft
 checkWin
 END SUB
 
@@ -245,6 +254,17 @@ prevRow = CSRLIN
 
 LOCATE (CSRLINOFFSET + size + 2), 1
 PRINT text
+
+LOCATE prevRow, prevCol 'move the cursor to its previous location
+END SUB
+
+SUB printMinesLeft
+prevCol = POS(0)
+prevRow = CSRLIN
+
+LOCATE 3, 1
+PRINT "There are" + STR$(minesLeft) + " mines left out of" + STR$(minesCountMax) + ".    "
+'trailing spaces prevent characters remaining on the line when the number string gets shorter
 
 LOCATE prevRow, prevCol 'move the cursor to its previous location
 END SUB
