@@ -5,10 +5,10 @@ DECLARE SUB markMine (c AS INTEGER, r AS INTEGER)
 DECLARE FUNCTION POS2C! (position AS INTEGER)
 DECLARE SUB mineCursor (a AS STRING)
 DECLARE FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
-CONST size = 9
+CONST size = 9 'playground size
 CONST minesCountMax = 10
-CONST CSRLINOFFSET = 4 'na jake radce zacina hraci pole
-CONST charsPerMine = 4 'pocet znaku na minu
+CONST CSRLINOFFSET = 4 'at which line does the playground start
+CONST charsPerMine = 4 'number of characters per mine
 
 CONST mine = 300
 CONST marked = 100
@@ -19,14 +19,14 @@ PRINT "MINES"
 PRINT "F10 - quit       M - mark as a mine      Enter - show"
 DIM SHARED mines(size, size) AS INTEGER 'column,row
 
-'inicializece tabulky
+'table initialization
 DIM minesCount AS INTEGER
 WHILE minesCount < minesCountMax
-        RANDOMIZE TIMER 'zmeni seed
+        RANDOMIZE TIMER 'change the seed
         FOR r = 0 TO size - 1
                 FOR c = 0 TO size - 1
                         IF minesCount < minesCountMax THEN
-                                IF RND > .8 AND NOT mines(c, r) = mine AND NOT (c = 0 AND r = 0) THEN 'v prvni bunce nemuze byt mina
+                                IF RND > .8 AND NOT mines(c, r) = mine AND NOT (c = 0 AND r = 0) THEN 'first cell cannot contain a mine
                                         mines(c, r) = mine
                                         minesCount = minesCount + 1
                                 END IF
@@ -35,7 +35,7 @@ WHILE minesCount < minesCountMax
         NEXT r
 WEND
 
-'dopocitani hodnot
+'values calculation
 FOR r% = 0 TO size - 1
 FOR c% = 0 TO size - 1
 IF NOT mines(c%, r%) = mine THEN
@@ -45,12 +45,12 @@ NEXT c%
 NEXT r%
 
 
-'vypis tabulky
-COLOR 8, 0 'seda
+'print the table
+COLOR 8, 0 'grey
 FOR r = 0 TO size - 1
         PRINT
         FOR c = 0 TO size - 1
-                'debug - pak odebrat if
+                'debug - comment out if..then..else for release
                 'IF mines(c, r) >= mine THEN
                 'PRINT " M  ";
                 'ELSE
@@ -82,7 +82,7 @@ ON KEY(16) GOSUB show
 KEY(16) ON
 
 
-LOCATE CSRLINOFFSET, 2, 1'kurzor
+LOCATE CSRLINOFFSET, 2, 1 'cursor visible
 'COLOR 0, 15
 
 WHILE 1
@@ -111,7 +111,7 @@ LOCATE CSRLINOFFSET + size + 2, 1
 END
 RETURN
 
-mark: 'oznaci nezname policko jako minu / zrusi oznaceni
+mark: 'marks unknown cell as a mine / cancels the mark
 markMine POS2C(POS(0)), (CSRLIN - CSRLINOFFSET)
 RETURN
 
@@ -139,12 +139,14 @@ END FUNCTION
 SUB checkWin
 FOR c = 0 TO size - 1
 FOR r = 0 TO size - 1
-IF mines(c, r) = mine OR (mines(c, r) >= marked AND NOT mines(c, r) = mine + marked) THEN 'pokud zbyly neoznacene miny
-        EXIT SUB
+'If there are unmarked mines left:
+IF mines(c, r) = mine OR (mines(c, r) >= marked AND NOT mines(c, r) = mine + marked) THEN
+        EXIT SUB 'stop checking
 END IF
 NEXT r
 NEXT c
 
+'else: user wins
 LOCATE CSRLINOFFSET + size + 1, 1
 PRINT "You Win!"
 LOCATE CSRLINOFFSET + size + 2, 1
@@ -152,50 +154,51 @@ END
 
 END SUB
 
-SUB markMine (c AS INTEGER, r AS INTEGER) 'oznaci nezname policko jako minu / zrusi oznaceni
+SUB markMine (c AS INTEGER, r AS INTEGER) 'marks unknown cell as a mine / cancels the mark
 IF mines(c, r) >= marked AND NOT mines(c, r) = mine THEN
         mines(c, r) = mines(c, r) - marked
 ELSE
-        IF mines(c, r) >= hidden THEN 'aby neskryl zobrazene policko
+        IF mines(c, r) >= hidden THEN 'to prevent marking a shown cell
                 mines(c, r) = mines(c, r) + marked
         END IF
 END IF
-rePrint c, r  'znovu vypise aktualni policko - aby se projevily zmeny
+rePrint c, r  'reprint this cell
 checkWin
 END SUB
 
 SUB mineCursor (a AS STRING)
 SELECT CASE a
 CASE "L":
-        IF POS(0) - charsPerMine > 0 THEN 'znaky se cisluji od 1
+        IF POS(0) - charsPerMine > 0 THEN 'characters numbering starts at 1
                 LOCATE CSRLIN, (POS(0) - charsPerMine)
-                'PRINT "doleva"
+                'PRINT "left"
         END IF
 CASE "R":
         IF POS(0) + charsPerMine < size * charsPerMine THEN
                 LOCATE CSRLIN, (POS(0) + charsPerMine)
-                'PRINT "doprava"
+                'PRINT "right"
         END IF
 CASE "U":
         IF CSRLIN > CSRLINOFFSET THEN
                 LOCATE (CSRLIN - 1), POS(0)
-                'PRINT "nahoru"
+                'PRINT "up"
         END IF
 
 CASE "D":
         IF CSRLIN + 1 < size + CSRLINOFFSET THEN
                 LOCATE (CSRLIN + 1), POS(0)
-                'PRINT "doprava"
+                'PRINT "down"
         END IF
 
 END SELECT
 END SUB
 
 FUNCTION POS2C (position AS INTEGER)
+' todo fix / check
 POS2C = (POS(0) - 1) / charsPerMine
 END FUNCTION
 
-SUB rePrint (c AS INTEGER, r AS INTEGER) 'znovu vypise policko
+SUB rePrint (c AS INTEGER, r AS INTEGER) 'reprints a cell
 DIM prevCol AS INTEGER
 DIM prevRow AS INTEGER
 prevCol = POS(0)
@@ -208,12 +211,12 @@ IF mines(c, r) >= hidden THEN
                 PRINT " * ";
                 COLOR 7, 0 'deafult
         ELSE
-                COLOR 8, 0 'seda
+                COLOR 8, 0 'grey
                 PRINT " ? ";
                 COLOR 7, 0 'default
         END IF
 
-ELSE    'vypise cislo
+ELSE    'print the number
         SELECT CASE mines(c, r)
                 CASE 0:
                         COLOR 2 'GRN - 2; LGRN - 10
@@ -224,12 +227,12 @@ ELSE    'vypise cislo
         COLOR 7, 0 'default
 
 END IF
-LOCATE prevRow, prevCol 'vrat kurzor
+LOCATE prevRow, prevCol 'move the cursor to its previous location
 END SUB
 
 SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
 IF mines(c, r) = mine THEN
-        'user klikl na minu
+        'user clicked on a mine
         LOCATE r + CSRLINOFFSET, c * charsPerMine + 1
         COLOR 0, 4
         PRINT " @ "
@@ -242,12 +245,12 @@ IF mines(c, r) = mine THEN
        
 ELSE
         IF mines(c, r) >= marked THEN
-                'nic - nelze kliknout na oznacenou minu
+                'nothing - it is not possible to click on a marked mine
         ELSE
                 IF mines(c, r) >= hidden THEN
                         mines(c, r) = mines(c, r) - hidden
-                        IF mines(c, r) = 0 AND nested < 10 THEN  'nested zabranuje chybe out of stack
-                                'zobraz okoli
+                        IF mines(c, r) = 0 AND nested < 10 THEN  'nested prevents out of stack exception
+                                'show the surrounding cells
                                 FOR i = -1 TO 1
                                 FOR j = -1 TO 1
                                         IF (c + i) >= 0 AND (c + i) <= (size - 1) AND (r + j) >= 0 AND (r + j) <= (size - 1) THEN
