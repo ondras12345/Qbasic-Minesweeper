@@ -1,3 +1,5 @@
+DECLARE SUB printDEBUG (text AS STRING)
+DECLARE SUB printAll (showMines AS INTEGER)
 DECLARE SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
 DECLARE SUB checkWin ()
 DECLARE SUB rePrint (c AS INTEGER, r AS INTEGER)
@@ -48,19 +50,7 @@ NEXT r%
 
 
 'print the table
-COLOR 8, 0 'grey
-FOR r = 0 TO size - 1
-        PRINT
-        FOR c = 0 TO size - 1
-                'debug - comment out if..then..else for release
-                'IF mines(c, r) >= mine THEN
-                'PRINT " M  ";
-                'ELSE
-                PRINT " ?  ";
-        NEXT c
-NEXT r
-COLOR 7, 0
-
+printAll 0
 showMine 0, 0, 0
 
 ON KEY(12) GOSUB cursorL
@@ -215,6 +205,50 @@ FUNCTION POS2C (cursorPosition AS INTEGER) 'cursor position to cell position
 POS2C = (cursorPosition - 1) / charsPerMine
 END FUNCTION
 
+SUB printAll (showMines AS INTEGER)
+LOCATE CSRLINOFFSET - 1, 1 '-1 compensates for the first PRINT in for r
+COLOR 8, 0 'grey
+FOR r = 0 TO size - 1
+        PRINT 'newline
+        FOR c = 0 TO size - 1
+                IF showMines > 0 THEN
+                        IF mines(c, r) = mine THEN 'mine that is not marked
+                                PRINT " ";
+                                COLOR 0, 4 'red
+                                PRINT "M";
+                                COLOR 7, 0 'default
+                                PRINT "  ";
+                        ELSE
+                                IF mines(c, r) >= marked AND mines(c, r) < mine THEN 'false mark
+                                        PRINT " ";
+                                        COLOR 10, 8 'light green, grey
+                                        PRINT "*";
+                                        COLOR 7, 0 'default
+                                        PRINT "  ";
+                                       
+                                ELSE
+                                        LOCATE CSRLIN, (POS(0) + charsPerMine)
+                                END IF
+                        END IF
+                ELSE
+                        PRINT " ?  ";
+                END IF
+        NEXT c
+NEXT r
+COLOR 7, 0 'default
+
+END SUB
+
+SUB printDEBUG (text AS STRING)
+prevCol = POS(0)
+prevRow = CSRLIN
+
+LOCATE (CSRLINOFFSET + size + 2), 1
+PRINT text
+
+LOCATE prevRow, prevCol 'move the cursor to its previous location
+END SUB
+
 SUB rePrint (c AS INTEGER, r AS INTEGER) 'reprints a cell
 DIM prevCol AS INTEGER
 DIM prevRow AS INTEGER
@@ -250,8 +284,10 @@ END SUB
 SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
 IF mines(c, r) = mine THEN
         'user clicked on a mine
+        printAll 1 'show mines
         LOCATE r + CSRLINOFFSET, c * charsPerMine + 1
-        COLOR 0, 4
+
+        COLOR 0, 4 'red
         PRINT " @ "
         COLOR 7, 0 'default
 
