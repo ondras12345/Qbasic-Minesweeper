@@ -7,7 +7,7 @@ DECLARE SUB mineCursor (a AS STRING)
 DECLARE FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
 CONST size = 9 'playground size
 CONST minesCountMax = 10
-CONST CSRLINOFFSET = 5 'at which line does the playground start
+CONST CSRLINOFFSET = 6 'at which line does the playground start
 CONST charsPerMine = 4 'number of characters per mine
 
 CONST mine = 300
@@ -17,6 +17,7 @@ CONST hidden = 10
 CLS
 PRINT "MINES"
 PRINT "Use cursor keys or WASD to move"
+PRINT "There are" + STR$(minesCountMax) + " mines."
 PRINT "F10 - quit       M - mark as a mine      Enter - show"
 DIM SHARED mines(size, size) AS INTEGER 'column,row
 
