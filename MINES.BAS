@@ -1,3 +1,5 @@
+DECLARE FUNCTION timeStr$ (time AS INTEGER)
+DECLARE SUB printTime ()
 DECLARE SUB myEND ()
 DECLARE SUB printMinesLeft ()
 DECLARE SUB printDEBUG (text AS STRING)
@@ -6,7 +8,7 @@ DECLARE SUB showMine (c AS INTEGER, r AS INTEGER, nested AS INTEGER)
 DECLARE SUB checkWin ()
 DECLARE SUB rePrint (c AS INTEGER, r AS INTEGER)
 DECLARE SUB markMine (c AS INTEGER, r AS INTEGER)
-DECLARE FUNCTION POS2C! (position AS INTEGER) 'cursor position to cell position
+DECLARE FUNCTION POS2C (position AS INTEGER) 'cursor position to cell position
 DECLARE SUB mineCursor (a AS STRING)
 DECLARE FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
 CONST size = 9 'playground size
@@ -22,9 +24,11 @@ CONST hidden = 10
 DIM SHARED mines(size, size) AS INTEGER 'column, row
 DIM SHARED minesLeft AS INTEGER
 minesLeft = minesCountMax
+DIM SHARED stopwatch AS INTEGER
+stopwatch = 0
 
 CLS
-PRINT "MINES"
+PRINT "MINES" '1, 60 - time
 PRINT "Use cursor keys or WASD to move"
 PRINT '3, 1 -  mines left
 printMinesLeft
@@ -96,6 +100,8 @@ KEY 20, CHR$(32) + CHR$(32) 'D
 ON KEY(20) GOSUB cursorR
 KEY(20) ON
 
+ON TIMER(1) GOSUB timerUpdate
+TIMER ON
 
 LOCATE CSRLINOFFSET, 2, 1 'cursor visible
 'COLOR 0, 15
@@ -133,6 +139,11 @@ RETURN
 show:
 showMine POS2C(POS(0)), (CSRLIN - CSRLINOFFSET), 0
 checkWin
+RETURN
+
+timerUpdate:
+stopwatch = stopwatch + 1
+printTime
 RETURN
 
 FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
@@ -216,6 +227,7 @@ SUB myEND 'disable key event trapping and end
 FOR i = 10 TO 20
         KEY(i) OFF
 NEXT i
+TIMER OFF
 END
 END SUB
 
@@ -276,6 +288,25 @@ PRINT "There are" + STR$(minesLeft) + " mines left out of" + STR$(minesCountMax)
 'trailing spaces prevent characters remaining on the line when the number string gets shorter
 
 LOCATE prevRow, prevCol 'move the cursor to its previous location
+END SUB
+
+SUB printTime
+prevCol = POS(0)
+prevRow = CSRLIN
+
+hour% = INT(stopwatch / (60 * 60))
+hourStr$ = timeStr$(hour%)
+minute% = INT((stopwatch MOD (60 * 60)) / 60)
+minuteStr$ = timeStr(minute%)
+second% = stopwatch MOD 60
+secondStr$ = timeStr$(second%)
+
+LOCATE 1, 60
+PRINT hourStr$ + ":" + minuteStr$ + ":" + secondStr$;
+PRINT "    " + TIME$
+
+LOCATE prevRow, prevCol 'move the cursor to its previous location
+
 END SUB
 
 SUB rePrint (c AS INTEGER, r AS INTEGER) 'reprints a cell
@@ -349,4 +380,13 @@ ELSE
 END IF
 rePrint c, r
 END SUB
+
+FUNCTION timeStr$ (time AS INTEGER)
+IF time < 10 THEN
+        timeStr$ = "0" + LTRIM$(STR$(time))
+ELSE
+        timeStr$ = LTRIM$(STR$(time))
+END IF
+
+END FUNCTION
 
