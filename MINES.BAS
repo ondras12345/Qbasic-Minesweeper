@@ -7,7 +7,7 @@ DECLARE SUB mineCursor (a AS STRING)
 DECLARE FUNCTION CalculateVal% (c AS INTEGER, r AS INTEGER)
 CONST size = 9 'playground size
 CONST minesCountMax = 10
-CONST CSRLINOFFSET = 4 'at which line does the playground start
+CONST CSRLINOFFSET = 5 'at which line does the playground start
 CONST charsPerMine = 4 'number of characters per mine
 
 CONST mine = 300
@@ -16,6 +16,7 @@ CONST hidden = 10
 
 CLS
 PRINT "MINES"
+PRINT "Use cursor keys or WASD to move"
 PRINT "F10 - quit       M - mark as a mine      Enter - show"
 DIM SHARED mines(size, size) AS INTEGER 'column,row
 
@@ -81,11 +82,27 @@ KEY 16, CHR$(32) + CHR$(28) 'Enter
 ON KEY(16) GOSUB show
 KEY(16) ON
 
+KEY 17, CHR$(32) + CHR$(17) 'W
+ON KEY(17) GOSUB cursorU
+KEY(17) ON
+
+KEY 18, CHR$(32) + CHR$(30) 'A
+ON KEY(18) GOSUB cursorL
+KEY(18) ON
+
+KEY 19, CHR$(32) + CHR$(31) 'S
+ON KEY(19) GOSUB cursorD
+KEY(19) ON
+
+KEY 20, CHR$(32) + CHR$(32) 'D
+ON KEY(20) GOSUB cursorR
+KEY(20) ON
+
 
 LOCATE CSRLINOFFSET, 2, 1 'cursor visible
 'COLOR 0, 15
 
-WHILE 1
+WHILE 1 'endless loop
 WEND
 
 END
