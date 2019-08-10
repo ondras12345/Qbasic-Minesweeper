@@ -26,6 +26,17 @@ DIM SHARED minesLeft AS INTEGER
 minesLeft = minesCountMax
 DIM SHARED stopwatch AS INTEGER
 stopwatch = 0
+DIM SHARED stopwatchEnable AS INTEGER
+stopwatchEnable = 1
+
+'Settings before start:
+CLS
+INPUT "Enable stopwatch (do not enable this for QB64) [y/n]? ", response$
+IF UCASE$(response$) = "Y" THEN
+        stopwatchEnable = 1
+ELSE
+        stopwatchEnable = 0
+END IF
 
 CLS
 PRINT "MINES" '1, 60 - time
@@ -101,8 +112,9 @@ ON KEY(20) GOSUB cursorR
 KEY(20) ON
 
 ON TIMER(1) GOSUB timerUpdate
-'Comment out this line for QB64 support:
-TIMER ON
+IF stopwatchEnable > 0 THEN
+        TIMER ON
+END IF
 
 LOCATE CSRLINOFFSET, 2, 1 'cursor visible
 'COLOR 0, 15
